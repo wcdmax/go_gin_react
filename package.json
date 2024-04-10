@@ -1,0 +1,55 @@
+{
+  "name": "go_gin_react",
+  "version": "0.1.0",
+  "private": true,
+  "author": {
+    "name": "Kevin",
+    "email": "wcdma020@hotmail.com"
+  },
+  "scripts": {
+    "test": "react-app-rewired test",
+    "build": "react-app-rewired build",
+    "start": "cross-env BROWSER=none react-app-rewired start"
+  },
+  "dependencies": {
+    "@ant-design/pro-components": "^2.6.52",
+    "@reduxjs/toolkit": "^2.2.2",
+    "antd": "^5.16.0",
+    "axios": "^1.6.8",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^9.1.0",
+    "react-router-dom": "^6.22.3",
+    "redux": "^5.0.1"
+  },
+  "devDependencies": {
+    "@types/customize-cra": "^1.0.8",
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.2.67",
+    "@types/react-dom": "^18.2.22",
+    "cross-env": "^7.0.3",
+    "customize-cra": "^1.0.0",
+    "less": "^4.2.0",
+    "less-loader": "^12.2.0",
+    "react-app-rewired": "^2.2.1",
+    "react-scripts": "^5.0.1",
+    "styled-components": "^6.1.8",
+    "typescript": "^5.4.4",
+    "web-vitals": "^3.5.2"
+  },
+  "peerDependencies": {
+    "antd": "^5.11.2",
+    "react": ">=18.0.0",
+    "react-dom": ">=18.0.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version"
+    ]
+  }
+}
