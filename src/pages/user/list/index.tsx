@@ -9,36 +9,65 @@
  */
 
 import { get } from '@/http'
-import { Button, Space } from 'antd'
-import React, { useEffect, useState } from 'react'
-import { ProColumns } from '@ant-design/pro-components'
-import { RecordSwitch } from '@/components/RecordSwitch'
-import { groupDataItem, UserDataItem } from '@/pages/user/data'
-import { EditOutlined, DeleteOutlined } from '@ant-design/icons'
+import { API } from '@/typings'
+import { useRequest } from 'ahooks'
+import React, { useState, useRef } from 'react'
+import { RecordSwitch } from '@/components/switch'
+import { Button, Space, Table, App, Avatar } from 'antd'
+import { UserGroupDataItem, UserDataItem } from '@/pages/user/data'
+import { CreateUserModal } from '@/pages/user/components/create_user'
+import { ActionType, ProColumns, ProTable } from '@ant-design/pro-components'
+import { EditOutlined, DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
 export const UserList: React.FC = () => {
-    const [ userGroup, setUserGroup ] = useState<{label: string; value: number}[]>([])
+    const { message } = App.useApp()
+    type ExtendUserDataItem = UserDataItem & { userGroup: { role: string } }
+    // ActionType
+    const ref: React.MutableRefObject<ActionType | undefined> = useRef<ActionType>()
+    const [ createUser, setCreateUser ] = useState<boolean>(false)
+    const [ modalOpen, setModalOpen ] = React.useState<boolean>(false)
+    const [ userData, setUserData ] = useState<ExtendUserDataItem>()
+    const [ userGroupData, setUserGroupData ] = useState<{label: string; value: number}[]>(
+        [ { label: '只读用户组', value: 4 } ]
+    )
     
-    useEffect(() => {
-        get('/user_group/list', {}).then(ret => {
-            setUserGroup(() => {
-                return ret.data?.list?.map((item: groupDataItem) => ({
-                    label: item.name,
-                    value: item.id,
-                }))
-            })
-        }).catch(err => console.log(err))
-    })
+    useRequest(() => get('/api/v1/user_group/list').then(ret => {
+        setUserGroupData(() => ret.data?.list?.map((item: UserGroupDataItem) => ({
+            label: item.role,
+            value: item.id,
+        })))
+    }))
 
-    const handleEdit = (record: UserDataItem) => {
-        console.log('handleEdit', record)
+    const handleCreate = () => {
+        setModalOpen(true)
+        setCreateUser(true)
+        setUserData(undefined)
     }
 
-    const handleDelete = (record: UserDataItem) => {
+    const handleEdit = (record: ExtendUserDataItem) => {
+        setUserData(record)
+        setModalOpen(true)
+        setCreateUser(false)
+    }
+
+    const handleDelete = (record: ExtendUserDataItem | ExtendUserDataItem[]) => {
         console.log('handleDelete', record)
+        // remove('/api/v1/user/delete', record).then(res => {
+        //     message.success(res.data.msg).then()
+        // })
     }
 
-    const columns: ProColumns<UserDataItem>[] = [
+    const tableData = async (params: API.ProTableParams, sort: API.ProTableSort, filter: Record<string, any>) => {
+        console.log('Filter', filter)
+        console.log('Params', params)
+        return await get('/api/v1/user/list', { ...params, ...sort, ...filter }).then(res => ({
+            success: true,
+            total: res.data.total,
+            data: res.data.list as ExtendUserDataItem[]
+        })).catch(_ => [])
+    }
+
+    const columns: ProColumns<ExtendUserDataItem>[] = [
         {
             width: 80,
             title: 'ID',
@@ -48,6 +77,12 @@ export const UserList: React.FC = () => {
             width: 150,
             title: '用户名',
             dataIndex: 'name',
+            render: (_, record) => (
+                <Space>
+                    <Avatar size="small" src={record.avatar} style={{ verticalAlign: 'middle' }} >{record.name}</Avatar>
+                    <span>{record.name}</span>
+                </Space>
+            )
         },
         {
             width: 150,
@@ -57,7 +92,14 @@ export const UserList: React.FC = () => {
         {
             width: 150,
             title: '用户组',
-            dataIndex: [ 'group', 'name' ],
+            hideInSearch: true,
+            render: (_, record: ExtendUserDataItem) => {
+                return userGroupData.map(item => {
+                    if (item.value == record.gid) {
+                        return item.label
+                    }
+                })
+            }
         },
         {
             title: '用户组',
@@ -66,7 +108,7 @@ export const UserList: React.FC = () => {
             valueType: 'select',
             fieldProps: {
                 mode: 'multiple',
-                options: userGroup,
+                options: userGroupData,
             },
         },
         {
@@ -77,48 +119,39 @@ export const UserList: React.FC = () => {
         {
             width: 150,
             title: 'Email',
+            hideInSearch: true,
             dataIndex: 'email',
         },
         {
             width: 150,
             title: 'ip地址',
+            hideInSearch: true,
             dataIndex: 'ipaddress',
         },
         {
             width: 200,
             sorter: true,
             title: '最近登录',
-            dataIndex: 'update_time',
+            hideInSearch: true,
+            render: (_, record) => record?.lastLogin ?? '未曾登录'
         },
         {
             title: '日期范围',
             hideInTable: true,
-            dataIndex: 'dateRange',
-            valueType: 'dateRange',
+            dataIndex: 'lastLogin',
+            valueType: 'dateTimeRange',
             fieldProps: {
-                showNow: true,
-                showTime: true,
                 format: 'YYYY-MM-DD HH:mm:ss',
             },
         },
         {
             width: 150,
-            filters: true,
-            search: false,
-            onFilter: true,
             title: '用户状态',
-            filterMode: 'tree',
-            dataIndex: 'status',
+            dataIndex: 'state',
             valueType: 'select',
             valueEnum: {
-                1: {
-                    text: '启用',
-                    status: 'Show',
-                },
-                0: {
-                    text: '禁用',
-                    status: 'Hide',
-                },
+                1: '启用',
+                0: '禁用',
             },
             render: (_, record) => <RecordSwitch record={record} url={'/user/status'} echoChecked={'启用'} echoUnChecked={'禁用'} />,
         },
@@ -140,5 +173,50 @@ export const UserList: React.FC = () => {
         },
     ]
 
-    return <p>UserList</p>
+    return (
+        <>
+            <ProTable<ExtendUserDataItem>
+                rowKey="id"
+                actionRef={ref}
+                columns={columns}
+                request={tableData}
+                search={{
+                    filterType: 'light',
+                }}
+                rowSelection={{
+                    selections: [ Table.SELECTION_ALL, Table.SELECTION_INVERT ],
+                }}
+                tableAlertRender={({ selectedRowKeys, onCleanSelected }) => (
+                    <Space size={24}>
+                            <span>
+                                已选 {selectedRowKeys.length} 项
+                                <a style={{ marginLeft: 8 }} onClick={onCleanSelected}>
+                                    取消选择
+                                </a>
+                            </span>
+                    </Space>
+                )}
+                pagination={{ pageSize: 15, showQuickJumper: true, hideOnSinglePage: true }}
+                headerTitle={
+                    <Button shape="round" type="primary" key="createUser" icon={<PlusOutlined />} onClick={handleCreate}>
+                        新增用户
+                    </Button>
+                }
+                tableAlertOptionRender={({ selectedRows }) => {
+                    return (
+                        <Space size={16}>
+                            <a onClick={() => handleDelete(selectedRows)}>批量删除</a>
+                        </Space>
+                    )
+                }}
+            />
+            <CreateUserModal
+                ModalOpen={modalOpen}
+                Record={userData}
+                IsCreateUser={createUser}
+                UserGroupData={userGroupData}
+                ReloadTable={() => ref.current?.reload()}
+                HandleSetModalOpen={state => setModalOpen(state)}/>
+        </>
+    )
 }
