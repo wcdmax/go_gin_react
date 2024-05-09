@@ -8,9 +8,8 @@
  * +----------------------------------------------------------------------------------
  */
 
-import { App } from 'antd'
-import { Switch } from 'antd'
 import { post } from '@/http'
+import { Switch, App } from 'antd'
 import React, { useState } from 'react'
 
 export const RecordSwitch: React.FC<{
@@ -41,11 +40,11 @@ export const RecordSwitch: React.FC<{
      * @param checked 状态
      * @param record 当前记录
      */
-    const handleChange = async (checked: boolean, e: React.MouseEvent<HTMLButtonElement, MouseEvent>, record: Record<string, any>) => {
+    const handleChange = (checked: boolean, e: React.MouseEvent<HTMLButtonElement, MouseEvent>, record: Record<string, any>) => {
         /* 阻止事件冒泡 */
         e.stopPropagation()
         setLoadings(true)
-        await post(props.url, { id: record.id, [fieldKey]: checked ? 1 : 0 }).then(res => {
+        post(props.url, { id: record.id, [fieldKey]: checked ? 1 : 0 }).then(res => {
             message.success(res.data.msg).then(() => setLoadings(false))
         })
     }
