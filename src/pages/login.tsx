@@ -33,10 +33,8 @@ export const Login: React.FC = () => {
         await post('/api/v1/home/login', values).then(ret => {
                 localStorage.setItem('uid', ret.data.info?.uid)
                 localStorage.setItem('username', ret.data.info?.username)
-                localStorage.setItem('accessToken', ret.data.info?.accessToken)
-                localStorage.setItem('refreshToken', ret.data.info?.refreshToken)
-                localStorage.setItem('accessTokenExpAt', ret.data.info?.accessTokenExpAt)
-                localStorage.setItem('refreshTokenExpAt', ret.data.info?.refreshTokenExpAt)
+                localStorage.setItem('access_token', ret.data.info?.access_token)
+                localStorage.setItem('refresh_token', ret.data.info?.refresh_token)
                 messageApi.success(ret.data.msg).then(() => navigate(redirect || '/dashboard/analysis'))
             }).catch(e => console.log(e.response.data.msg))
     }
