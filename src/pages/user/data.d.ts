@@ -17,13 +17,14 @@ export type UserDataItem = {
     email: string
     avatar: string
     ipaddress: string
+    lastLogin: string
     create_time: string
     update_time: string
 };
 
-export type groupDataItem = {
+export type UserGroupDataItem = {
     id: number
-    name: string
+    role: string
     state: number
     menu: string | number[]
 };
