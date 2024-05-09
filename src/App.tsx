@@ -8,22 +8,21 @@
  * +----------------------------------------------------------------------------------
  */
 
-import './basic.less'
-import { Layout } from './layout'
-import { Login } from './pages/login'
-import { UserList } from './pages/user/list'
-import { UserMenu } from './pages/user/menu'
-import { UserGroup } from './pages/user/group'
-import { Monitor } from './pages/dashboard/monitor'
-import { Analysis } from './pages/dashboard/analysis'
-import { Workplace } from './pages/dashboard/workplace'
-import { BrowserRouter as Router, Navigate, Routes, Route } from 'react-router-dom'
+import '@/basic.less'
+import { Layout } from '@/layout'
+import { Login } from '@/pages/login'
+import { UserList } from '@/pages/user/list'
+import { UserMenu } from '@/pages/user/menu'
+import { UserGroup } from '@/pages/user/group'
+import { history } from '@/components/history'
+import { Monitor } from '@/pages/dashboard/monitor'
+import { Analysis } from '@/pages/dashboard/analysis'
+import { Workplace } from '@/pages/dashboard/workplace'
+import { unstable_HistoryRouter as Router, Navigate, Routes, Route } from 'react-router-dom'
 
-// prettier-ignore
 export default () => {
-
     return (
-        <Router>
+        <Router history={history as any}>
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route index path="/" element={<Navigate to="/login" />} />
