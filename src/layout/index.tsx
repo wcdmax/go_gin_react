@@ -45,7 +45,7 @@ export const Layout: React.FC<ProLayoutProps> = ({ children }) => {
             }}
             menuItemRender={(item, dom) => {
                 return (
-                    <Link to={item.path!} onClick={() => setPathname(item.path || '/')}>
+                    <Link to={item.path || '/'} onClick={() => setPathname(item.path || '/')}>
                         {dom}
                     </Link>
                 )
