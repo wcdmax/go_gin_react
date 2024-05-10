@@ -22,7 +22,8 @@ module.exports = {
             '@': path.resolve(__dirname, 'src'),
         }),
         adjustStyleLoaders(({ use: [, , postcss] }) => {
-            postcss.options.javascriptEnabled = true;
+            const postcssOptions = postcss.options;
+            postcss.options = { postcssOptions };
         }),
     ),
     devServer: overrideDevServer(config => {
